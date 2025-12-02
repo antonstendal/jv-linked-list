@@ -37,17 +37,12 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
             tail.next = newNode;
             tail = newNode;
         } else {
-            Node prevNode = head;
-            for (int i = 0; i < index - 1; i++) {
-                prevNode = prevNode.next;
-            }
-            Node nextNode = prevNode.next;
-            newNode.prev = prevNode;
-            newNode.next = nextNode;
+            Node nextNode = getNode(index);
+            Node prevNode = nextNode.prev;
+
+            newNode = new Node(prevNode, value, nextNode);
             prevNode.next = newNode;
-            if (nextNode != null) {
-                nextNode.prev = newNode;
-            }
+            nextNode.prev = newNode;
         }
         size++;
     }
@@ -80,29 +75,7 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     public T remove(int index) {
         Node current = getNode(index);
         T old = current.item;
-        Node prevNode = current.prev;
-        Node nextNode = current.next;
-
-        if (current == head) {
-            head = nextNode;
-            if (head != null) {
-                head.prev = null;
-            } else {
-                tail = null;
-            }
-        } else if (current == tail) {
-            tail = prevNode;
-            if (tail != null) {
-                tail.next = null;
-            } else {
-                head = null;
-            }
-        } else {
-            prevNode.next = nextNode;
-            nextNode.prev = prevNode;
-        }
-
-        size--;
+        unlink(current);
         return old;
     }
 
@@ -117,19 +90,7 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
             Node current = head;
             while (current != null) {
                 if (object == null ? current.item == null : object.equals(current.item)) {
-                    Node prevNode = current.prev;
-                    Node nextNode = current.next;
-                    if (current == head) {
-                        head = current.next;
-                        head.prev = null;
-                    } else if (current == tail) {
-                        tail = current.prev;
-                        tail.next = null;
-                    } else {
-                        prevNode.next = nextNode;
-                        nextNode.prev = prevNode;
-                    }
-                    size--;
+                    unlink(current);
                     return true;
                 }
                 current = current.next;
@@ -181,5 +142,26 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
             }
         }
         return current;
+    }
+
+    private void unlink(Node node) {
+        Node prevNode = node.prev;
+        Node nextNode = node.next;
+
+        if (node == head) {
+            head = nextNode;
+            if (head != null) {
+                head.prev = null;
+            }
+        } else if (node == tail) {
+            tail = prevNode;
+            if (tail != null) {
+                tail.next = null;
+            }
+        } else {
+            prevNode.next = nextNode;
+            nextNode.prev = prevNode;
+        }
+        size--;
     }
 }
